@@ -54,7 +54,7 @@ interface PaymentRecord {
   createdAt: string;
 }
 
-export default function LoanDetailsPage() {
+function LoanDetailsContent() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
@@ -349,5 +349,20 @@ export default function LoanDetailsPage() {
         )}
       </div>
     </AppLayout>
+  );
+}
+
+export default function LoanDetailsPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen bg-[#F6F8FB] flex items-center justify-center text-slate-500">
+          <RefreshCw className="w-5 h-5 animate-spin text-[#0F766E] mr-2" />
+          <span className="text-xs font-medium">Loading loan details...</span>
+        </div>
+      }
+    >
+      <LoanDetailsContent />
+    </React.Suspense>
   );
 }
