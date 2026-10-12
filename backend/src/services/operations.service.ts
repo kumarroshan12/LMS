@@ -122,24 +122,30 @@ export class OperationsService {
       throw new Error(`Repayments can only be recorded for active DISBURSED loans (Current status: ${loan.status}).`);
     }
 
-    if (amount > loan.balanceRemaining) {
+    const cleanAmount = Math.round(Number(amount) * 100) / 100;
+    const currentBalance = Math.round(loan.balanceRemaining * 100) / 100;
+
+    if (cleanAmount > currentBalance + 0.05) {
       throw new Error(
-        `Payment amount (₹${amount.toLocaleString()}) exceeds the outstanding balance (₹${loan.balanceRemaining.toLocaleString()}).`
+        `Payment amount (₹${cleanAmount.toFixed(2)}) exceeds the outstanding balance (₹${currentBalance.toFixed(2)}).`
       );
     }
+
+    // If payment is within 5 paise of remaining balance, cap to exact balance for clean closure
+    const finalPaymentAmount = Math.abs(cleanAmount - currentBalance) <= 0.05 ? currentBalance : cleanAmount;
 
     // 1. Create Payment record
     const payment = await this.paymentRepo.create({
       loanId: loan._id as any,
       borrowerId: (loan.borrowerId as any)._id || loan.borrowerId,
       utrNumber: cleanUtr,
-      amount,
+      amount: finalPaymentAmount,
       paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
       collectedBy: collectionExecutiveId as any,
     });
 
     // 2. Update Loan ledger (totalPaid, balanceRemaining, auto-close if balanced)
-    const updatedLoan = await this.loanRepo.recordPayment(loanId, amount);
+    const updatedLoan = await this.loanRepo.recordPayment(loanId, finalPaymentAmount);
 
     return {
       payment,

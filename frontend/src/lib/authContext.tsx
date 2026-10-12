@@ -23,9 +23,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (fullName: string, email: string, password: string, role?: UserRole, phone?: string) => Promise<User>;
+  register: (fullName: string, email: string, password: string, phone?: string) => Promise<User>;
   logout: () => void;
-  quickLoginAsRole: (role: UserRole) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<User> => {
     const res = await apiRequest<{ user: User; token: string }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: email.trim(), password }),
     });
 
     if (res.success && res.data) {
@@ -79,12 +78,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fullName: string,
     email: string,
     password: string,
-    role: UserRole = 'borrower',
     phone?: string
   ): Promise<User> => {
+    // Normal client registration is always for a Borrower
     const res = await apiRequest<{ user: User; token: string }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ fullName, email, password, role, phone }),
+      body: JSON.stringify({ fullName, email: email.trim(), password, role: 'borrower', phone }),
     });
 
     if (res.success && res.data) {
@@ -93,18 +92,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return res.data.user;
     }
     throw new Error(res.message || 'Registration failed.');
-  };
-
-  const quickLoginAsRole = async (role: UserRole): Promise<User> => {
-    const roleEmailMap: Record<UserRole, string> = {
-      admin: 'admin@lms.com',
-      sales: 'sales@lms.com',
-      sanction: 'sanction@lms.com',
-      disbursement: 'disbursement@lms.com',
-      collection: 'collection@lms.com',
-      borrower: 'borrower@lms.com',
-    };
-    return login(roleEmailMap[role], 'Password@123');
   };
 
   const logout = () => {
@@ -120,7 +107,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
-        quickLoginAsRole,
       }}
     >
       {children}

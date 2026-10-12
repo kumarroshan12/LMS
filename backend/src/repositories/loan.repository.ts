@@ -35,13 +35,18 @@ export class LoanRepository {
     const loan = await LoanModel.findById(loanId);
     if (!loan) return null;
 
-    const newTotalPaid = Math.round((loan.totalPaid + paymentAmount) * 100) / 100;
-    const newBalance = Math.max(0, Math.round((loan.totalRepayment - newTotalPaid) * 100) / 100);
-    const newStatus = newBalance <= 0 ? LoanStatus.CLOSED : loan.status;
+    const cleanPayment = Math.round(Number(paymentAmount) * 100) / 100;
+    const newTotalPaid = Math.round((loan.totalPaid + cleanPayment) * 100) / 100;
+    let newBalance = Math.round((loan.totalRepayment - newTotalPaid) * 100) / 100;
+
+    // Zero balance threshold: if remaining balance is within 5 paise (0.05), fully settle
+    if (newBalance <= 0.05) {
+      newBalance = 0;
+    }
 
     loan.totalPaid = newTotalPaid;
     loan.balanceRemaining = newBalance;
-    if (newStatus === LoanStatus.CLOSED) {
+    if (newBalance === 0) {
       loan.status = LoanStatus.CLOSED;
       loan.closedAt = new Date();
     }

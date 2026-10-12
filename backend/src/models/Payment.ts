@@ -35,7 +35,7 @@ const PaymentSchema = new Schema<IPayment>(
     amount: {
       type: Number,
       required: true,
-      min: 1,
+      min: 0.01,
     },
     paymentDate: {
       type: Date,

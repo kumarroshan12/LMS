@@ -649,13 +649,13 @@ export default function DashboardPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3.5 font-semibold text-slate-800">
-                        ₹{loan.totalRepayment.toLocaleString()}
+                        ₹{loan.totalRepayment.toFixed(2)}
                       </td>
                       <td className="px-4 py-3.5 font-bold text-emerald-700">
-                        ₹{loan.totalPaid.toLocaleString()}
+                        ₹{loan.totalPaid.toFixed(2)}
                       </td>
                       <td className="px-4 py-3.5 font-bold text-slate-900">
-                        ₹{loan.balanceRemaining.toLocaleString()}
+                        ₹{loan.balanceRemaining.toFixed(2)}
                       </td>
                       <td className="px-4 py-3.5">
                         <span
@@ -737,7 +737,7 @@ export default function DashboardPage() {
             </h3>
             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1">
               <div>Borrower: <span className="font-bold text-slate-900">{paymentLoan.fullName}</span></div>
-              <div>Outstanding Balance: <span className="font-bold text-emerald-700">₹{paymentLoan.balanceRemaining.toLocaleString()}</span></div>
+              <div>Outstanding Balance: <span className="font-bold text-emerald-700">₹{paymentLoan.balanceRemaining.toFixed(2)}</span></div>
             </div>
 
             <form onSubmit={handleRecordPayment} className="space-y-3">
@@ -757,20 +757,30 @@ export default function DashboardPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Payment Amount (₹)
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Payment Amount (₹)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentAmount(Math.round(paymentLoan.balanceRemaining * 100) / 100)}
+                    className="text-[10px] text-teal-600 hover:text-teal-700 font-semibold underline"
+                  >
+                    Pay Full Balance (₹{paymentLoan.balanceRemaining.toFixed(2)})
+                  </button>
+                </div>
                 <input
                   type="number"
+                  step="any"
+                  min="0.01"
                   required
-                  min={1}
-                  max={paymentLoan.balanceRemaining}
+                  max={Math.round((paymentLoan.balanceRemaining + 0.05) * 100) / 100}
                   value={paymentAmount}
                   onChange={(e) => setPaymentAmount(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 text-slate-800 font-semibold"
                 />
                 <span className="text-[10px] text-slate-400">
-                  Cannot exceed outstanding balance of ₹{paymentLoan.balanceRemaining.toLocaleString()}
+                  Supports decimal precision (e.g. ₹{paymentLoan.balanceRemaining.toFixed(2)})
                 </span>
               </div>
 

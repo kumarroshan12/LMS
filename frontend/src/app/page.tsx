@@ -2,205 +2,142 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useAuth, UserRole } from '@/lib/authContext';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/authContext';
 import {
   Landmark,
   ShieldCheck,
   CheckCircle2,
   ArrowRight,
   Calculator,
-  FileCheck,
+  FileCheck2,
   Send,
   PiggyBank,
   Users,
-  Sparkles,
+  Lock,
 } from 'lucide-react';
 
 export default function HomePage() {
-  const { user, quickLoginAsRole } = useAuth();
-  const router = useRouter();
-
-  const handleQuickDemo = async (role: UserRole, targetPath: string) => {
-    try {
-      await quickLoginAsRole(role);
-      router.push(targetPath);
-    } catch (err) {
-      console.error(err);
-      router.push('/login');
-    }
-  };
+  const { user } = useAuth();
 
   return (
     <div className="flex-1 flex flex-col bg-slate-50">
-      {/* Hero Section */}
-      <section className="bg-[#0B192C] text-white py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+      {/* Enterprise Fintech Hero Section */}
+      <section className="bg-[#0B192C] text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         <div className="max-w-5xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-xs font-semibold shadow-inner">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>MERN • Next.js • TypeScript • 3-Layer Architecture</span>
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Automated Lending & Underwriting Platform</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-            Enterprise Loan Management System
+            Next-Generation Loan Management System
           </h1>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-300 leading-relaxed">
-            A comprehensive lending platform connecting borrowers through an automated BRE-driven onboarding journey and internal executives across Sales, Sanction, Disbursement, and Collection modules.
+            Fast, transparent, and compliant personal financing powered by real-time automated eligibility checks (BRE) and a full lifecycle operations workflow.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <button
-              onClick={() => handleQuickDemo('borrower', '/borrower')}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-600/30 transition transform hover:-translate-y-0.5"
-            >
-              <span>Test Borrower Application</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {user ? (
+              user.role === 'borrower' ? (
+                <Link
+                  href="/borrower"
+                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-600/30 transition transform hover:-translate-y-0.5"
+                >
+                  <span>Go to My Loan Application</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-600/30 transition transform hover:-translate-y-0.5"
+                >
+                  <span>Go to Operations Workbench</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-600/30 transition transform hover:-translate-y-0.5"
+                >
+                  <span>Apply for a Loan</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
 
-            <button
-              onClick={() => handleQuickDemo('admin', '/dashboard')}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-sm px-6 py-3 rounded-xl transition"
-            >
-              <span>Open Operations Workbench</span>
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            </button>
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs sm:text-sm px-6 py-3 rounded-xl transition"
+                >
+                  <Lock className="w-4 h-4 text-emerald-400" />
+                  <span>Sign In</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Feature Architecture Cards */}
-      <section className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-        {/* Module Lifecycle Grid */}
-        <div>
-          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-8">
-            Complete 4-Stage Operational Lifecycle
+      {/* Structured Lending Process Section */}
+      <section className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+        <div className="text-center space-y-2">
+          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            Streamlined Financing Journey
           </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Sales */}
-            <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-                  <Users className="w-4 h-4" />
-                </div>
-                <h3 className="font-bold text-sm text-slate-900">1. Sales Module</h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Lead tracking of pre-application users who registered but haven&apos;t completed applying.
-                </p>
-              </div>
-              <button
-                onClick={() => handleQuickDemo('sales', '/dashboard')}
-                className="mt-4 text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1"
-              >
-                <span>Launch Sales View</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-
-            {/* Sanction */}
-            <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
-                  <FileCheck className="w-4 h-4" />
-                </div>
-                <h3 className="font-bold text-sm text-slate-900">2. Sanction Module</h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Underwrites applied loans, verifies salary slips, and approves or rejects with reason.
-                </p>
-              </div>
-              <button
-                onClick={() => handleQuickDemo('sanction', '/dashboard')}
-                className="mt-4 text-xs font-semibold text-amber-600 hover:underline flex items-center gap-1"
-              >
-                <span>Launch Sanction View</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-
-            {/* Disbursement */}
-            <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
-                  <Send className="w-4 h-4" />
-                </div>
-                <h3 className="font-bold text-sm text-slate-900">3. Disbursement</h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Marks sanctioned loans as disbursed, generates reference code and releases loan funds.
-                </p>
-              </div>
-              <button
-                onClick={() => handleQuickDemo('disbursement', '/dashboard')}
-                className="mt-4 text-xs font-semibold text-emerald-600 hover:underline flex items-center gap-1"
-              >
-                <span>Launch Disbursement View</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-
-            {/* Collection */}
-            <div className="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center mb-3">
-                  <PiggyBank className="w-4 h-4" />
-                </div>
-                <h3 className="font-bold text-sm text-slate-900">4. Collection</h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Records payments by unique UTR, calculates live remaining balance, and auto-closes loans.
-                </p>
-              </div>
-              <button
-                onClick={() => handleQuickDemo('collection', '/dashboard')}
-                className="mt-4 text-xs font-semibold text-teal-600 hover:underline flex items-center gap-1"
-              >
-                <span>Launch Collection View</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
+          <h3 className="text-2xl font-bold text-slate-900">How the Loan Process Works</h3>
+          <p className="text-xs text-slate-500 max-w-lg mx-auto">
+            From eligibility verification to full repayment, our system guarantees full transparency at each step.
+          </p>
         </div>
 
-        {/* Evaluator Credentials Cheat-Sheet */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <ShieldCheck className="w-5 h-5 text-emerald-600" />
-            <h3 className="text-base font-bold text-slate-900">Evaluator Testing Guide & Seed Credentials</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Step 1 */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative">
+            <span className="text-3xl font-extrabold text-slate-100 absolute top-4 right-4">01</span>
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+              <Users className="w-5 h-5" />
+            </div>
+            <h4 className="font-bold text-sm text-slate-900">1. Details & BRE Check</h4>
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              Borrowers enter personal and employment data. The server engine instantly checks age (23–50), salary (₹25k+), PAN format, and employment status.
+            </p>
           </div>
-          <p className="text-xs text-slate-500 mb-6">
-            All accounts below are pre-configured in the database seed script with password: <code className="bg-slate-100 px-2 py-0.5 rounded font-mono font-bold text-slate-800">Password@123</code>.
-          </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
-              <div className="font-bold text-slate-900">Super Administrator</div>
-              <div className="text-slate-500 font-mono mt-0.5">admin@lms.com</div>
-              <div className="text-[10px] text-purple-600 font-semibold mt-1">Access to all 4 modules</div>
+          {/* Step 2 */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative">
+            <span className="text-3xl font-extrabold text-slate-100 absolute top-4 right-4">02</span>
+            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-4">
+              <Calculator className="w-5 h-5" />
             </div>
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
-              <div className="font-bold text-slate-900">Sales Executive</div>
-              <div className="text-slate-500 font-mono mt-0.5">sales@lms.com</div>
-              <div className="text-[10px] text-blue-600 font-semibold mt-1">Pre-application lead tracker</div>
+            <h4 className="font-bold text-sm text-slate-900">2. Configure & Apply</h4>
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              Upload income proof (salary slip), customize loan amount and tenure via interactive sliders with live 12% p.a. interest calculation, and submit.
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative">
+            <span className="text-3xl font-extrabold text-slate-100 absolute top-4 right-4">03</span>
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+              <FileCheck2 className="w-5 h-5" />
             </div>
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
-              <div className="font-bold text-slate-900">Sanction Officer</div>
-              <div className="text-slate-500 font-mono mt-0.5">sanction@lms.com</div>
-              <div className="text-[10px] text-amber-600 font-semibold mt-1">Approve / Reject applied loans</div>
+            <h4 className="font-bold text-sm text-slate-900">3. Sanction & Payout</h4>
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              Underwriting teams review documents and approve or reject with a reason. Once approved, the disbursement team releases the funds.
+            </p>
+          </div>
+
+          {/* Step 4 */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative">
+            <span className="text-3xl font-extrabold text-slate-100 absolute top-4 right-4">04</span>
+            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4">
+              <PiggyBank className="w-5 h-5" />
             </div>
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
-              <div className="font-bold text-slate-900">Disbursement Officer</div>
-              <div className="text-slate-500 font-mono mt-0.5">disbursement@lms.com</div>
-              <div className="text-[10px] text-emerald-600 font-semibold mt-1">Fund release & reference</div>
-            </div>
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
-              <div className="font-bold text-slate-900">Collection Officer</div>
-              <div className="text-slate-500 font-mono mt-0.5">collection@lms.com</div>
-              <div className="text-[10px] text-teal-600 font-semibold mt-1">Record unique UTR repayments</div>
-            </div>
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200">
-              <div className="font-bold text-slate-900">Borrower</div>
-              <div className="text-slate-500 font-mono mt-0.5">borrower@lms.com</div>
-              <div className="text-[10px] text-slate-600 font-semibold mt-1">Portal application & tracking</div>
-            </div>
+            <h4 className="font-bold text-sm text-slate-900">4. Repayment & Closure</h4>
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+              Collections records borrower repayments against unique UTR numbers. When full repayment is completed, the loan automatically marks as CLOSED.
+            </p>
           </div>
         </div>
       </section>
