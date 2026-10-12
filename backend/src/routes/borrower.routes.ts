@@ -21,5 +21,6 @@ router.post(
 router.post('/apply', borrowerController.submitApplication);
 router.get('/my-loans', borrowerController.getMyLoans);
 router.get('/latest-loan', borrowerController.getLatestLoan);
+router.get('/loans/:id', borrowerController.getLoanById);
 
 export default router;

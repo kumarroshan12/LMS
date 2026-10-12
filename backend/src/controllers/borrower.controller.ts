@@ -153,4 +153,28 @@ export class BorrowerController {
       ApiResponse.error(res, error.message || 'Failed to fetch loan details.', 500);
     }
   };
+
+  /**
+   * Get specific loan by ID with its payments
+   */
+  public getLoanById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      if (!req.user) {
+        ApiResponse.error(res, 'Unauthorized.', 401);
+        return;
+      }
+      const id = req.params.id as string;
+      const details = await this.loanService.getLoanDetailsWithPayments(id);
+
+      const loanOwnerId = (details.loan.borrowerId as any)?._id?.toString() || details.loan.borrowerId?.toString();
+      if (req.user.role === 'borrower' && loanOwnerId !== req.user.id) {
+        ApiResponse.error(res, 'Access forbidden. You can only view your own loan applications.', 403);
+        return;
+      }
+
+      ApiResponse.success(res, 'Loan details retrieved.', details);
+    } catch (error: any) {
+      ApiResponse.error(res, error.message || 'Failed to fetch loan details.', 404);
+    }
+  };
 }
