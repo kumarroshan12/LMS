@@ -13,6 +13,8 @@ LendFlow is a full-stack loan management application for borrowers and lending o
 - Repayment ledger with unique UTR numbers and automatic closure when the balance is fully paid.
 - Role-based access for borrowers, sales, sanction, disbursement, collection, and administrators.
 
+DEMO VIDEO LINK- https://drive.google.com/file/d/1dFWAqZOdVKKPqz84Kn3RnlUG5jt1g1l1/view?usp=drive_link
+
 ## Technology
 
 - **Frontend:** Next.js App Router, React, TypeScript, Tailwind CSS
