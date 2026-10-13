@@ -15,7 +15,7 @@ export const seedDatabase = async () => {
   try {
     console.log('[Seed] Connecting to MongoDB...');
     // Let the seed clear legacy fixtures before creating newly-added unique indexes.
-    await mongoose.connect(ENV.MONGO_URI, { autoIndex: false });
+    await mongoose.connect(ENV.MONGO_URI);
     console.log('[Seed] Connected.');
 
     // Clear existing data for clean seed
