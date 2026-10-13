@@ -1,128 +1,152 @@
-# LendFlow — Enterprise Loan Management System (LMS)
+# LendFlow — Loan Management System
 
-**LendFlow** is an enterprise-grade digital lending platform built using the MERN stack, Next.js (App Router), TypeScript, and a strict **Three-Layer Backend Architecture**.
+LendFlow is a full-stack loan management application for borrowers and lending operations teams. Borrowers can check eligibility, submit and track a loan application, and view repayment progress. Staff work in role-specific sales, sanction, disbursement, and collection modules.
 
-The system connects customers through an automated **Borrower Portal** and internal bank executives through an **Employee Operations Portal** guarded by granular Role-Based Access Control (RBAC).
+## Features
 
----
+- Borrower registration and login with JWT authentication.
+- Server-side eligibility checks for age, monthly salary, PAN format, and employment status.
+- Loan applications with fixed 12% annual simple interest and repayment estimates.
+- Salary-slip uploads (PDF, JPG, or PNG; maximum 5 MB).
+- Loan lifecycle: `APPLIED → SANCTIONED → DISBURSED → CLOSED`, with rejection supported at sanction.
+- One active application per borrower; customer profile details are reused for later applications.
+- Repayment ledger with unique UTR numbers and automatic closure when the balance is fully paid.
+- Role-based access for borrowers, sales, sanction, disbursement, collection, and administrators.
 
-## 🎨 Professional Fintech Design System
+## Technology
 
-* **Primary Navy**: Deep navy blue (`#14243A`) for navigation bars and sidebar chrome
-* **Accent Teal**: Rich teal (`#0F766E`, hover `#0D655E`) for action buttons and active highlights
-* **Background Surface**: Light grey (`#F6F8FB`) with clean spacing
-* **Card Panels**: Crisp white (`#FFFFFF`) with subtle border lines (`#E2E8F0`)
-* **Typography**: Clean, accessible Inter typeface
-* **Status Indicators**:
-  * 🟢 Green: `SANCTIONED`, `DISBURSED`, `CLOSED`, `ACTIVE`
-  * 🟡 Amber: `APPLIED`, `PENDING`, `LEAD`
-  * 🔴 Red: `REJECTED`, `FAILED`
+- **Frontend:** Next.js App Router, React, TypeScript, Tailwind CSS
+- **Backend:** Node.js, Express, TypeScript, Mongoose
+- **Database:** MongoDB
+- **Authentication:** JWT and bcrypt
 
----
+## Requirements
 
-## 📁 System Architecture & Page Hierarchy
+- Node.js 20.9 or later
+- npm
+- A MongoDB database, either a local MongoDB instance or MongoDB Atlas
 
-```
-LendFlow System
-├── Authentication & Public
-│   ├── /                         Landing Page
-│   ├── /login                    Sign In (Automatic Role Detection)
-│   ├── /register                 Borrower Registration
-│   └── /access-denied            HTTP 403 Forbidden Guard
-│
-├── Borrower Portal
-│   ├── /borrower                 Borrower Dashboard (KPIs, active loan, repayments progress)
-│   ├── /borrower/apply           4-Step Loan Wizard (Details → BRE Check → Upload → Review)
-│   ├── /borrower/loans           My Loans Page (Search, status filter, pagination)
-│   └── /borrower/loans/[id]      Loan Details & Lifecycle Tracker (APPLIED → SANCTIONED → DISBURSED → CLOSED)
-│
-└── Employee Operations Portal
-    ├── /dashboard                Operations Dashboard (Pipeline KPIs & pending tasks)
-    ├── /dashboard/sales          Sales Management (Pre-application lead tracking)
-    ├── /dashboard/sanction       Loan Sanction (Underwriting desk, slip view, approve/reject dialog)
-    ├── /dashboard/disbursement   Loan Disbursement (Treasury payout release & reference code)
-    └── /dashboard/collection     Loan Collection (Ledger, unique UTR payments, auto-closure)
+## Local setup
+
+### 1. Install dependencies
+
+Run these commands from the repository root:
+
+```bash
+npm install --prefix backend
+npm install --prefix frontend
 ```
 
----
+### 2. Configure the backend
 
-## 🔐 Role-Based Access Matrix
+Copy the sample environment file:
 
-| Role | Borrower Portal | Sales Leads | Sanction Desk | Disbursement | Collection Ledger |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Borrower** | ✅ Full Access | ❌ `403` | ❌ `403` | ❌ `403` | ❌ `403` |
-| **Sales Executive** | ❌ `403` | ✅ Full Access | ❌ `403` | ❌ `403` | ❌ `403` |
-| **Sanction Officer** | ❌ `403` | ❌ `403` | ✅ Full Access | ❌ `403` | ❌ `403` |
-| **Disbursement Officer**| ❌ `403` | ❌ `403` | ❌ `403` | ✅ Full Access | ❌ `403` |
-| **Collection Officer** | ❌ `403` | ❌ `403` | ❌ `403` | ❌ `403` | ✅ Full Access |
-| **Super Admin** | ❌ `403` | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |
+```powershell
+Copy-Item backend/.env.example backend/.env
+```
 
----
+On macOS or Linux, use:
 
-## 🧮 Financial Mathematics & BRE Invariants
+```bash
+cp backend/.env.example backend/.env
+```
 
-1. **Simple Interest (SI)**:
-   $$\text{SI} = \frac{P \times R \times T}{365 \times 100}$$
-   $$\text{Total Repayment} = P + \text{SI}$$
-   * Principal ($P$): ₹50,000 to ₹5,00,000 (slider)
-   * Tenure ($T$): 30 to 365 days (slider)
-   * Fixed Interest Rate ($R$): 12% p.a.
+Edit `backend/.env`. For local MongoDB, set `MONGO_URI` to `mongodb://127.0.0.1:27017/lms_db`. For Atlas, use the connection string from your Atlas cluster. Replace the JWT placeholder with a private random secret at least 32 characters long.
 
-2. **Business Rule Engine (BRE)**:
-   * **Age**: 23 to 50 years inclusive (computed from Date of Birth).
-   * **Monthly Salary**: Minimum ₹25,000.
-   * **PAN Format**: Standard 10-char regex `^[A-Z]{5}[0-9]{4}[A-Z]{1}$`.
-   * **Employment Status**: Unemployed applicants are blocked.
+Example backend environment:
 
-3. **Repayment Ledger**:
-   * **UTR Number**: Globally unique across all payments (enforced via database index).
-   * **Overpayment Guard**: Payment amount $\le$ remaining balance.
-   * **Auto-closure**: When remaining balance reaches ₹0.00, loan status automatically marks as `CLOSED`.
-
----
-
-## 🚀 Quick Start Guide
-
-### 1. Configure Backend Environment
-In `backend/.env`:
 ```env
 PORT=5000
 NODE_ENV=development
 MONGO_URI=mongodb://127.0.0.1:27017/lms_db
-# For MongoDB Atlas Cloud, specify your connection string:
-# MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/lms_db?retryWrites=true&w=majority
-JWT_SECRET=lms_super_secret_jwt_key_2026_fintech
+JWT_SECRET=replace_with_a_private_random_secret_of_at_least_32_chars
 JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:3000
 UPLOAD_DIR=uploads
 ```
 
-### 2. Seed Pre-Configured Accounts
+Do not commit `.env` or share real database credentials or JWT secrets.
+
+### 3. Configure the frontend
+
+Create `frontend/.env.local` with:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
+
+For a hosted frontend, set this variable to the deployed API base URL ending in `/api`.
+
+### 4. Seed demo data (optional)
+
+Only run the seed command against a **new, disposable database**. It deletes existing users, loans, and payments before creating the demo accounts and sample loans.
+
 ```bash
-cd backend
 npm run seed
 ```
 
-All accounts use password: `Password@123`
-* Super Admin: `admin@lms.com`
-* Sales Executive: `sales@lms.com`
-* Sanction Officer: `sanction@lms.com`
-* Disbursement Officer: `disbursement@lms.com`
-* Collection Officer: `collection@lms.com`
-* Borrower Account: `borrower@lms.com`
-* Sanction demo borrower: `vikram.borrower@lms.com`
-* Collection demo borrower: `ananya.borrower@lms.com`
+All seeded accounts use the password `Password@123`:
 
-### 3. Start Backend & Frontend
+| Role / account | Email |
+|---|---|
+| Administrator | `admin@lms.com` |
+| Sales executive | `sales@lms.com` |
+| Sanction officer | `sanction@lms.com` |
+| Disbursement officer | `disbursement@lms.com` |
+| Collection officer | `collection@lms.com` |
+| Borrower lead | `rahul.lead@lms.com` |
+| Active borrower | `borrower@lms.com` |
+| Sanction demo borrower | `vikram.borrower@lms.com` |
+| Collection demo borrower | `ananya.borrower@lms.com` |
 
-**Backend** (port 5000):
+### 5. Start the application
+
+Start the backend and frontend in separate terminals from the repository root:
+
 ```bash
-cd backend
-npm run dev
+npm run backend:dev
 ```
 
-**Frontend** (port 3000):
 ```bash
-cd frontend
-npm run dev
+npm run frontend:dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000). The backend health endpoint is [http://localhost:5000/api/health](http://localhost:5000/api/health).
+
+## Build
+
+```bash
+npm run backend:build
+npm run frontend:build
+```
+
+## Application structure
+
+```text
+backend/   Express API, authentication, business rules, MongoDB models, uploads
+frontend/  Next.js borrower portal and employee operations portal
+```
+
+Main frontend routes:
+
+- `/register`, `/login` — borrower registration and sign-in
+- `/borrower` — borrower dashboard
+- `/borrower/apply` — eligibility and loan application flow
+- `/borrower/loans` — loan history and repayment details
+- `/dashboard/sales` — eligible borrower leads who have not submitted an application
+- `/dashboard/sanction` — review, approve, or reject applications
+- `/dashboard/disbursement` — disburse sanctioned loans
+- `/dashboard/collection` — record and view repayments
+
+## Data relationships
+
+- One borrower (`User`) can have multiple loan records over time (`Loan.borrowerId`).
+- A loan can have multiple repayment records (`Payment.loanId`).
+- Each payment records the collection staff member who entered it (`Payment.collectedBy`).
+- Borrower profile data is saved on the user and copied into each loan application as an application snapshot.
+
+## Notes
+
+- Salary slips are stored in the backend upload directory. Local development uses `backend/uploads`; a hosted deployment must configure persistent or object storage if uploaded files need to survive restarts and redeploys.
+- The local CORS configuration currently allows all origins. `CLIENT_URL` is present in the environment configuration but is not currently used to restrict CORS.
+- Demo credentials are for local evaluation only. Change or disable them before exposing a seeded instance publicly.
