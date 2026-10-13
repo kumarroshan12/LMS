@@ -101,10 +101,10 @@ export default function LoanDisbursementPage() {
         />
 
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex min-w-0 flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-[#14243A]">Loan Disbursement — Treasury Desk</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="break-words text-lg font-bold text-[#14243A] sm:text-xl">Loan Disbursement — Treasury Desk</h1>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-50 text-[#0F766E] border border-teal-200">
                 {loans.length} Sanctioned & Ready
               </span>
@@ -126,10 +126,10 @@ export default function LoanDisbursementPage() {
 
         {/* Notifications */}
         {bannerSuccess && (
-          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-2">
               <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>{bannerSuccess}</span>
+              <span className="min-w-0 break-words">{bannerSuccess}</span>
             </div>
             <button onClick={() => setBannerSuccess(null)} className="text-emerald-700 hover:underline">
               Dismiss
@@ -138,10 +138,10 @@ export default function LoanDisbursementPage() {
         )}
 
         {bannerError && (
-          <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-800 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-2">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-              <span>{bannerError}</span>
+              <span className="min-w-0 break-words">{bannerError}</span>
             </div>
             <button onClick={() => setBannerError(null)} className="text-rose-700 hover:underline">
               Dismiss
@@ -150,8 +150,8 @@ export default function LoanDisbursementPage() {
         )}
 
         {/* Search Bar */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm flex items-center justify-between gap-4">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200/90 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-4">
+          <div className="relative w-full flex-1 sm:max-w-md">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
@@ -180,8 +180,8 @@ export default function LoanDisbursementPage() {
               <p>No sanctioned loans currently awaiting treasury disbursement.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            <div className="overflow-x-auto overscroll-x-contain">
+              <table className="w-full min-w-[640px] text-left text-xs">
                 <thead className="bg-slate-50/80 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
                   <tr>
                     <th className="px-5 py-3.5">Borrower & PAN</th>

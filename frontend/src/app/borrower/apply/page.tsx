@@ -266,16 +266,16 @@ export default function LoanWizardPage() {
         </div>
 
         {profileLoading ? (
-          <div className="bg-white p-10 rounded-xl border border-slate-200/90 shadow-sm text-center text-sm text-slate-500">Loading your saved customer profile...</div>
+          <div className="bg-white p-6 sm:p-10 rounded-xl border border-slate-200/90 shadow-sm text-center text-sm text-slate-500">Loading your saved customer profile...</div>
         ) : activeApplication ? (
-          <div className="bg-white p-10 rounded-xl border border-amber-200 shadow-sm text-center space-y-3">
+          <div className="bg-white p-6 sm:p-10 rounded-xl border border-amber-200 shadow-sm text-center space-y-3">
             <Clock className="w-10 h-10 text-amber-600 mx-auto" />
             <h2 className="text-lg font-bold text-[#14243A]">An application is already in process</h2>
             <p className="text-sm text-slate-600">You can’t start another loan application while application #{activeApplication._id.slice(-6).toUpperCase()} is {activeApplication.status.toLowerCase()}.</p>
             <button type="button" onClick={() => router.replace('/borrower')} className="px-5 py-2.5 bg-[#0F766E] text-white text-xs font-semibold rounded-lg">View application status</button>
           </div>
         ) : submitSuccess ? (
-          <div className="bg-white p-10 rounded-xl border border-slate-200/90 shadow-sm text-center space-y-3">
+          <div className="bg-white p-6 sm:p-10 rounded-xl border border-slate-200/90 shadow-sm text-center space-y-3">
             <CheckCircle className="w-12 h-12 text-emerald-600 mx-auto" />
             <h2 className="text-lg font-bold text-emerald-900">Submitted successfully</h2>
             <p className="text-xs text-slate-500">
@@ -286,7 +286,7 @@ export default function LoanWizardPage() {
           <>
         {/* Step Indicator Header */}
         <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm">
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-2">
             {[
               { step: 1, title: 'Details', desc: 'Personal info' },
               { step: 2, title: 'Eligibility', desc: 'BRE check' },
@@ -456,7 +456,7 @@ export default function LoanWizardPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
+                <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
                   <button
                     type="button"
                     onClick={() => setCurrentStep(1)}
@@ -493,7 +493,7 @@ export default function LoanWizardPage() {
                   </ul>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
+                <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
                   <button
                     type="button"
                     onClick={() => setCurrentStep(1)}
@@ -569,7 +569,7 @@ export default function LoanWizardPage() {
               )}
             </div>
 
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
@@ -702,7 +702,7 @@ export default function LoanWizardPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 onClick={() => setCurrentStep(3)}

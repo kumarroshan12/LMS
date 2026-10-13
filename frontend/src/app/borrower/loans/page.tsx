@@ -89,9 +89,9 @@ export default function MyLoansPage() {
         />
 
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex min-w-0 flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-xl font-bold text-[#14243A]">My Loan Applications</h1>
+            <h1 className="break-words text-lg font-bold text-[#14243A] sm:text-xl">My Loan Applications</h1>
             <p className="text-xs text-slate-500 mt-0.5">
               Review all historical and active loan records, sanction status, and repayment ledgers
             </p>
@@ -116,8 +116,8 @@ export default function MyLoansPage() {
         </div>
 
         {/* Filter Controls */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="relative flex-1 max-w-sm">
+          <div className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200/90 bg-white p-4 shadow-sm sm:flex-row sm:items-center">
+            <div className="relative w-full flex-1 sm:max-w-sm">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
@@ -167,8 +167,8 @@ export default function MyLoansPage() {
               <p>No loan applications found matching your criteria.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            <div className="overflow-x-auto overscroll-x-contain">
+              <table className="w-full min-w-[620px] text-left text-xs">
                 <thead className="bg-slate-50/80 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
                   <tr>
                     <th className="px-5 py-3.5">Loan ID</th>
@@ -221,7 +221,7 @@ export default function MyLoansPage() {
 
           {/* Pagination Controls */}
           {filteredLoans.length > itemsPerPage && (
-            <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-xs text-slate-500 sm:px-6">
               <span>
                 Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
                 {Math.min(currentPage * itemsPerPage, filteredLoans.length)} of {filteredLoans.length}{' '}

@@ -64,10 +64,10 @@ export default function SalesManagementPage() {
         />
 
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex min-w-0 flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-[#14243A]">Sales Management — Lead Tracking</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="break-words text-lg font-bold text-[#14243A] sm:text-xl">Sales Management — Lead Tracking</h1>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
                 {leads.length} Leads
               </span>
@@ -88,8 +88,8 @@ export default function SalesManagementPage() {
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm flex items-center justify-between gap-4">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200/90 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-4">
+          <div className="relative w-full flex-1 sm:max-w-md">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
@@ -121,8 +121,8 @@ export default function SalesManagementPage() {
               <p>No unapplied leads found in the pipeline.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            <div className="overflow-x-auto overscroll-x-contain">
+              <table className="w-full min-w-[620px] text-left text-xs">
                 <thead className="bg-slate-50/80 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
                   <tr>
                     <th className="px-5 py-3.5">Lead Name</th>
@@ -161,7 +161,7 @@ export default function SalesManagementPage() {
 
           {/* Pagination */}
           {filteredLeads.length > itemsPerPage && (
-            <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-xs text-slate-500 sm:px-6">
               <span>
                 Page {currentPage} of {totalPages}
               </span>

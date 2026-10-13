@@ -94,7 +94,7 @@ export default function BorrowerDashboardPage() {
     <AppLayout allowedRoles={['borrower']}>
       <div className="space-y-6">
         {/* Welcome Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex min-w-0 flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="text-xl font-bold text-[#14243A]">
               Welcome back, {user?.fullName || 'Borrower'}

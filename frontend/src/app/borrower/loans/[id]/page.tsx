@@ -130,7 +130,7 @@ function LoanDetailsContent() {
                   LendFlow Credit Facility
                 </span>
                 <div className="flex items-center gap-3 mt-1">
-                  <h1 className="text-xl font-bold text-[#14243A]">
+                  <h1 className="break-words text-lg font-bold text-[#14243A] sm:text-xl">
                     Loan #{loan._id.slice(-6).toUpperCase()}
                   </h1>
                   <StatusBadge status={loan.status} />
@@ -315,8 +315,8 @@ function LoanDetailsContent() {
                     No repayments recorded yet. Incoming collections will be shown here.
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
+                  <div className="overflow-x-auto overscroll-x-contain">
+                    <table className="w-full min-w-[560px] text-left text-xs">
                       <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
                         <tr>
                           <th className="px-4 py-3">Receipt Date</th>

@@ -112,9 +112,9 @@ export default function OperationsDashboardPage() {
         />
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex min-w-0 flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-xl font-bold text-[#14243A]">Operations Overview</h1>
+            <h1 className="break-words text-lg font-bold text-[#14243A] sm:text-xl">Operations Overview</h1>
             <p className="text-xs text-slate-500 mt-0.5">
               Enterprise-wide pipeline, treasury, and collection metrics
             </p>
@@ -281,8 +281,8 @@ export default function OperationsDashboardPage() {
               No pending applications in the underwriting queue.
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            <div className="overflow-x-auto overscroll-x-contain">
+              <table className="w-full min-w-[620px] text-left text-xs">
                 <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
                   <tr>
                     <th className="px-4 py-3">Applicant</th>
