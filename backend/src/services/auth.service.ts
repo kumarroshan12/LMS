@@ -96,7 +96,7 @@ export class AuthService {
 
   public generateToken(payload: AuthTokenPayload): string {
     return jwt.sign(payload, ENV.JWT_SECRET, {
-      expiresIn: '7d',
+      expiresIn: ENV.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
     });
   }
 

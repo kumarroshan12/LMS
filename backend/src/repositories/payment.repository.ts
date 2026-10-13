@@ -18,6 +18,10 @@ export class PaymentRepository {
     });
   }
 
+  async deleteById(id: string): Promise<void> {
+    await PaymentModel.findByIdAndDelete(id);
+  }
+
   async getTotalPaymentsSum(): Promise<number> {
     const result = await PaymentModel.aggregate([
       {

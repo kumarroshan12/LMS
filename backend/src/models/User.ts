@@ -7,6 +7,17 @@ export interface IUser extends Document {
   passwordHash: string;
   role: UserRole;
   phone?: string;
+  customerProfile?: {
+    fullName?: string;
+    pan?: string;
+    dateOfBirth?: Date;
+    monthlySalary?: number;
+    employmentMode?: 'Salaried' | 'Self-Employed' | 'Unemployed';
+    eligibility?: {
+      isEligible: boolean;
+      checkedAt: Date;
+    };
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +49,17 @@ const UserSchema = new Schema<IUser>(
     phone: {
       type: String,
       trim: true,
+    },
+    customerProfile: {
+      fullName: { type: String, trim: true },
+      pan: { type: String, trim: true, uppercase: true },
+      dateOfBirth: { type: Date },
+      monthlySalary: { type: Number, min: 0 },
+      employmentMode: { type: String, enum: ['Salaried', 'Self-Employed', 'Unemployed'] },
+      eligibility: {
+        isEligible: { type: Boolean, default: false },
+        checkedAt: { type: Date },
+      },
     },
   },
   {

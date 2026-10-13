@@ -22,7 +22,12 @@ export class BorrowerController {
         return;
       }
 
-      const result = this.loanService.checkEligibility({
+      if (!req.user) {
+        ApiResponse.error(res, 'Unauthorized.', 401);
+        return;
+      }
+
+      const result = await this.loanService.checkBorrowerEligibility(req.user.id, {
         fullName,
         pan,
         dateOfBirth,
@@ -133,6 +138,20 @@ export class BorrowerController {
     }
   };
 
+  /** Get reusable personal and employment details for the signed-in borrower. */
+  public getMyProfile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      if (!req.user) {
+        ApiResponse.error(res, 'Unauthorized.', 401);
+        return;
+      }
+      const profile = await this.loanService.getBorrowerProfile(req.user.id);
+      ApiResponse.success(res, 'Borrower profile fetched.', profile);
+    } catch (error: any) {
+      ApiResponse.error(res, error.message || 'Failed to fetch borrower profile.', 500);
+    }
+  };
+
   /**
    * Get latest loan for current borrower
    */
@@ -175,6 +194,28 @@ export class BorrowerController {
       ApiResponse.success(res, 'Loan details retrieved.', details);
     } catch (error: any) {
       ApiResponse.error(res, error.message || 'Failed to fetch loan details.', 404);
+    }
+  };
+
+  public getSalarySlip = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+      if (!req.user) {
+        ApiResponse.error(res, 'Unauthorized.', 401);
+        return;
+      }
+      const filePath = await this.loanService.getSalarySlipPath(
+        req.params.id as string,
+        req.user.id,
+        req.user.role === 'admin'
+      );
+      res.setHeader('Cache-Control', 'private, no-store');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.sendFile(filePath, (error) => {
+        if (error && !res.headersSent) ApiResponse.error(res, 'Salary slip file not found.', 404);
+      });
+    } catch (error: any) {
+      const statusCode = error.message?.startsWith('Access forbidden') ? 403 : 404;
+      ApiResponse.error(res, error.message || 'Failed to retrieve salary slip.', statusCode);
     }
   };
 }

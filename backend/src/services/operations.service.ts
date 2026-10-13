@@ -32,7 +32,7 @@ export class OperationsService {
       throw new Error(`Cannot approve loan in '${loan.status}' status. Only APPLIED loans can be approved.`);
     }
 
-    const updated = await this.loanRepo.updateById(loanId, {
+    const updated = await this.loanRepo.transitionByStatus(loanId, LoanStatus.APPLIED, {
       status: LoanStatus.SANCTIONED,
       sanctionedBy: sanctionExecutiveId as any,
       sanctionedAt: new Date(),
@@ -52,7 +52,7 @@ export class OperationsService {
       throw new Error('A valid rejection reason must be provided.');
     }
 
-    const updated = await this.loanRepo.updateById(loanId, {
+    const updated = await this.loanRepo.transitionByStatus(loanId, LoanStatus.APPLIED, {
       status: LoanStatus.REJECTED,
       rejectionReason: reason.trim(),
       sanctionedBy: sanctionExecutiveId as any,
@@ -81,7 +81,7 @@ export class OperationsService {
 
     const ref = disbursementReference || `DISB-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const updated = await this.loanRepo.updateById(loanId, {
+    const updated = await this.loanRepo.transitionByStatus(loanId, LoanStatus.SANCTIONED, {
       status: LoanStatus.DISBURSED,
       disbursedBy: disbursementExecutiveId as any,
       disbursedAt: new Date(),
@@ -107,7 +107,7 @@ export class OperationsService {
   ) {
     const cleanUtr = utrNumber?.trim().toUpperCase();
     if (!cleanUtr) throw new Error('UTR Number is required.');
-    if (!amount || amount <= 0) throw new Error('Payment amount must be greater than 0.');
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error('Payment amount must be a valid number greater than 0.');
 
     // Enforce global UTR uniqueness
     const existingUtr = await this.paymentRepo.findByUtr(cleanUtr);
@@ -124,28 +124,43 @@ export class OperationsService {
 
     const cleanAmount = Math.round(Number(amount) * 100) / 100;
     const currentBalance = Math.round(loan.balanceRemaining * 100) / 100;
+    if (cleanAmount <= 0) throw new Error('Payment amount must be at least ₹0.01.');
 
-    if (cleanAmount > currentBalance + 0.05) {
+    if (cleanAmount > currentBalance) {
       throw new Error(
         `Payment amount (₹${cleanAmount.toFixed(2)}) exceeds the outstanding balance (₹${currentBalance.toFixed(2)}).`
       );
     }
 
-    // If payment is within 5 paise of remaining balance, cap to exact balance for clean closure
-    const finalPaymentAmount = Math.abs(cleanAmount - currentBalance) <= 0.05 ? currentBalance : cleanAmount;
+    const finalPaymentAmount = cleanAmount;
+
+    const parsedPaymentDate = paymentDate ? new Date(paymentDate) : new Date();
+    if (Number.isNaN(parsedPaymentDate.getTime())) throw new Error('Payment date is invalid.');
 
     // 1. Create Payment record
-    const payment = await this.paymentRepo.create({
-      loanId: loan._id as any,
-      borrowerId: (loan.borrowerId as any)._id || loan.borrowerId,
-      utrNumber: cleanUtr,
-      amount: finalPaymentAmount,
-      paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
-      collectedBy: collectionExecutiveId as any,
-    });
+    let payment;
+    try {
+      payment = await this.paymentRepo.create({
+        loanId: loan._id as any,
+        utrNumber: cleanUtr,
+        amount: finalPaymentAmount,
+        paymentDate: parsedPaymentDate,
+        collectedBy: collectionExecutiveId as any,
+      });
+    } catch (error: any) {
+      if (error?.code === 11000) throw new Error(`Duplicate UTR Number: Transaction with UTR '${cleanUtr}' has already been recorded.`);
+      throw error;
+    }
 
     // 2. Update Loan ledger (totalPaid, balanceRemaining, auto-close if balanced)
-    const updatedLoan = await this.loanRepo.recordPayment(loanId, finalPaymentAmount);
+    let updatedLoan;
+    try {
+      updatedLoan = await this.loanRepo.recordPayment(loanId, finalPaymentAmount, currentBalance);
+      if (!updatedLoan) throw new Error('Loan balance changed during this payment. Refresh the loan and retry.');
+    } catch (error) {
+      await this.paymentRepo.deleteById(payment._id.toString());
+      throw error;
+    }
 
     return {
       payment,

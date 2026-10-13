@@ -37,6 +37,9 @@ export default function MyLoansPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const hasActiveApplication = loans.some((loan) =>
+    ['APPLIED', 'SANCTIONED', 'DISBURSED'].includes(loan.status)
+  );
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -102,13 +105,13 @@ export default function MyLoansPage() {
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
             </button>
-            <Link
+            {!hasActiveApplication && <Link
               href="/borrower/apply"
               className="px-4 py-2 text-xs font-semibold text-white bg-[#0F766E] hover:bg-[#0D655E] rounded-lg shadow-sm transition flex items-center gap-1.5"
             >
               <FilePlus className="w-3.5 h-3.5" />
               <span>New Application</span>
-            </Link>
+            </Link>}
           </div>
         </div>
 

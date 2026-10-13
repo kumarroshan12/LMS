@@ -2,19 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/authContext';
-import {
-  LogOut,
-  Landmark,
-  User,
-  ShieldCheck,
-  Building2,
-} from 'lucide-react';
+import { LogOut, Landmark } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
 
   const getRoleLabel = (role?: string) => {
@@ -125,10 +118,7 @@ export const Navbar = () => {
 
                 {/* Sign Out Button */}
                 <button
-                  onClick={() => {
-                    logout();
-                    router.push('/login');
-                  }}
+                  onClick={logout}
                   className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-400 bg-slate-800/60 hover:bg-slate-800 px-2.5 py-1.5 rounded-md border border-slate-700/60 transition"
                   title="Sign Out"
                 >
@@ -137,12 +127,18 @@ export const Navbar = () => {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Link
-                  href="/login"
+                  href="/login?portal=customer"
                   className="text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg transition shadow-sm"
                 >
-                  Sign In
+                  Customer Sign In
+                </Link>
+                <Link
+                  href="/login?portal=employee"
+                  className="text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 px-4 py-2 rounded-lg transition"
+                >
+                  Employee Sign In
                 </Link>
               </div>
             )}

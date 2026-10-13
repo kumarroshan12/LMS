@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, openProtectedFile } from '@/lib/api';
 import { AppLayout } from '@/components/AppLayout';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { StatusBadge } from '@/components/StatusBadge';
@@ -268,15 +268,14 @@ export default function LoanSanctionPage() {
                       </td>
                       <td className="px-5 py-4">
                         {loan.salarySlipUrl ? (
-                          <a
-                            href={`http://localhost:5000${loan.salarySlipUrl}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={() => void openProtectedFile(`/operations/loans/${loan._id}/salary-slip`)}
                             className="inline-flex items-center gap-1 text-[#0F766E] hover:underline font-semibold"
                           >
                             <span>View Document</span>
                             <ExternalLink className="w-3 h-3" />
-                          </a>
+                          </button>
                         ) : (
                           <span className="text-slate-400 italic">No document</span>
                         )}

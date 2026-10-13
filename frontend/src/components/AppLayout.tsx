@@ -10,15 +10,11 @@ import { RefreshCw } from 'lucide-react';
 interface AppLayoutProps {
   children: React.ReactNode;
   allowedRoles?: UserRole[];
-  onSearch?: (query: string) => void;
-  searchPlaceholder?: string;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
   children,
   allowedRoles,
-  onSearch,
-  searchPlaceholder,
 }) => {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -26,7 +22,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.push('/login');
+        window.location.replace('/');
         return;
       }
 
@@ -55,7 +51,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     <div className="min-h-screen bg-[#F6F8FB] flex">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        <Topbar onSearch={onSearch} searchPlaceholder={searchPlaceholder} />
+        <Topbar />
         <main className="flex-1 p-6 sm:p-8 max-w-7xl w-full mx-auto">{children}</main>
       </div>
     </div>

@@ -149,5 +149,16 @@ const LoanSchema = new Schema<ILoan>(
 );
 
 LoanSchema.index({ status: 1, createdAt: -1 });
+// A borrower may have only one application in the active lifecycle at a time.
+// Rejected and closed applications do not prevent a later application.
+LoanSchema.index(
+  { borrowerId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      status: { $in: [LoanStatus.APPLIED, LoanStatus.SANCTIONED, LoanStatus.DISBURSED] },
+    },
+  }
+);
 
 export const LoanModel = mongoose.model<ILoan>('Loan', LoanSchema);

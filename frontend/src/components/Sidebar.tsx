@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/authContext';
+import { apiRequest } from '@/lib/api';
 import {
   Landmark,
   LayoutDashboard,
@@ -14,18 +15,33 @@ import {
   Send,
   PiggyBank,
   LogOut,
-  Shield,
-  Layers,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [hasActiveApplication, setHasActiveApplication] = useState<boolean | null>(null);
+  const isBorrower = user?.role === 'borrower';
+  const isAdmin = user?.role === 'admin';
+
+  useEffect(() => {
+    if (!isBorrower) return;
+    let isCurrent = true;
+    apiRequest<Array<{ status: string }>>('/borrower/my-loans')
+      .then((res) => {
+        if (isCurrent) {
+          setHasActiveApplication(Boolean(res.data?.some((loan) =>
+            ['APPLIED', 'SANCTIONED', 'DISBURSED'].includes(loan.status)
+          )));
+        }
+      })
+      .catch(() => {
+        if (isCurrent) setHasActiveApplication(true);
+      });
+    return () => { isCurrent = false; };
+  }, [isBorrower, pathname]);
 
   if (!user) return null;
-
-  const isBorrower = user.role === 'borrower';
-  const isAdmin = user.role === 'admin';
 
   return (
     <aside className="w-64 bg-[#14243A] text-white flex flex-col shrink-0 min-h-screen border-r border-slate-800">
@@ -65,7 +81,7 @@ export const Sidebar: React.FC = () => {
               <span>Borrower Dashboard</span>
             </Link>
 
-            <Link
+            {hasActiveApplication === false && <Link
               href="/borrower/apply"
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
                 pathname === '/borrower/apply'
@@ -75,7 +91,7 @@ export const Sidebar: React.FC = () => {
             >
               <FilePlus className="w-4 h-4" />
               <span>Apply for a Loan</span>
-            </Link>
+            </Link>}
 
             <Link
               href="/borrower/loans"

@@ -8,9 +8,10 @@ import { UserRole } from '../constants/roles';
 const router = Router();
 const borrowerController = new BorrowerController();
 
-// Only BORROWER role (or Admin for testing) can perform borrower actions
+// The borrower portal is reserved for borrower accounts. Admin access is
+// provided through the operations routes and admin dashboard.
 router.use(authenticateJwt);
-router.use(authorizeRoles(UserRole.BORROWER, UserRole.ADMIN));
+router.use(authorizeRoles(UserRole.BORROWER));
 
 router.post('/eligibility', borrowerController.checkEligibility);
 router.post(
@@ -19,8 +20,10 @@ router.post(
   borrowerController.uploadSalarySlip
 );
 router.post('/apply', borrowerController.submitApplication);
+router.get('/profile', borrowerController.getMyProfile);
 router.get('/my-loans', borrowerController.getMyLoans);
 router.get('/latest-loan', borrowerController.getLatestLoan);
 router.get('/loans/:id', borrowerController.getLoanById);
+router.get('/loans/:id/salary-slip', borrowerController.getSalarySlip);
 
 export default router;

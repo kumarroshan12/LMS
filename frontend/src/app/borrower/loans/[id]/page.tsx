@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, openProtectedFile } from '@/lib/api';
 import { AppLayout } from '@/components/AppLayout';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { StatusBadge } from '@/components/StatusBadge';
@@ -278,15 +278,14 @@ function LoanDetailsContent() {
                   <span className="text-slate-800 font-semibold">{loan.salarySlipOriginalName || 'salary_slip.pdf'}</span>
                 </div>
                 {loan.salarySlipUrl && (
-                  <a
-                    href={`http://localhost:5000${loan.salarySlipUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => void openProtectedFile(`/borrower/loans/${loan._id}/salary-slip`)}
                     className="text-[#0F766E] hover:underline font-semibold flex items-center gap-1"
                   >
                     <span>Download / View Document</span>
                     <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  </button>
                 )}
               </div>
             </div>

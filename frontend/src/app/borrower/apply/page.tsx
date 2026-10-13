@@ -22,6 +22,7 @@ import {
   FileCheck2,
   RefreshCw,
   Check,
+  Clock,
 } from 'lucide-react';
 
 export default function LoanWizardPage() {
@@ -57,20 +58,71 @@ export default function LoanWizardPage() {
 
   const [submittingLoan, setSubmittingLoan] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [activeApplication, setActiveApplication] = useState<{ _id: string; status: string } | null>(null);
 
   // Live Simple Interest Math: SI = (P * R * T) / (365 * 100)
   const interestAmount = Math.round(((principalAmount * interestRate * tenureDays) / (365 * 100)) * 100) / 100;
   const totalRepayment = Math.round((principalAmount + interestAmount) * 100) / 100;
 
   useEffect(() => {
-    if (user?.fullName) {
-      setFullName(user.fullName);
-    }
+    if (!user) return;
+
+    let cancelled = false;
+    const loadSavedProfile = async () => {
+      if (user.fullName) setFullName(user.fullName);
+      try {
+        const [profileRes, loansRes] = await Promise.all([
+          apiRequest<{
+          fullName?: string;
+          pan?: string;
+          dateOfBirth?: string;
+          monthlySalary?: number;
+          employmentMode?: 'Salaried' | 'Self-Employed' | 'Unemployed';
+          eligibility?: { isEligible: boolean; checkedAt?: string };
+          }>('/borrower/profile'),
+          apiRequest<Array<{ _id: string; status: string }>>('/borrower/my-loans'),
+        ]);
+
+        if (cancelled) return;
+        const activeLoan = loansRes.data?.find((loan) =>
+          ['APPLIED', 'SANCTIONED', 'DISBURSED'].includes(loan.status)
+        );
+        setActiveApplication(activeLoan || null);
+
+        if (profileRes.success && profileRes.data) {
+          const profile = profileRes.data;
+          if (profile.fullName) setFullName(profile.fullName);
+          if (profile.pan) setPan(profile.pan);
+          if (profile.dateOfBirth) setDateOfBirth(profile.dateOfBirth.slice(0, 10));
+          if (profile.monthlySalary !== undefined) setMonthlySalary(profile.monthlySalary);
+          if (profile.employmentMode) setEmploymentMode(profile.employmentMode);
+          if (profile.eligibility?.isEligible) {
+            setBrePassed(true);
+            setCurrentStep(3);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load saved borrower profile.', error);
+      } finally {
+        if (!cancelled) setProfileLoading(false);
+      }
+    };
+
+    loadSavedProfile();
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   // Step 1 -> Step 2: Validate fields then trigger BRE
   const handleProceedToBRE = (e: React.FormEvent) => {
     e.preventDefault();
+    if (brePassed) {
+      setCurrentStep(3);
+      return;
+    }
     setCurrentStep(2);
     runEligibilityCheck();
   };
@@ -169,8 +221,24 @@ export default function LoanWizardPage() {
         }),
       });
 
-      if (res.success && res.data) {
-        router.push(`/borrower/loans/${res.data._id}`);
+      if (res.success) {
+        setSubmitSuccess(true);
+        setCurrentStep(1);
+        setPan('');
+        setDateOfBirth('');
+        setMonthlySalary('');
+        setEmploymentMode('Salaried');
+        setBrePassed(false);
+        setBreErrors([]);
+        setSelectedFile(null);
+        setUploadedFileUrl('');
+        setUploadedFileName('');
+        setPrincipalAmount(100000);
+        setTenureDays(180);
+        setSubmitError(null);
+        window.setTimeout(() => {
+          router.replace('/borrower');
+        }, 1800);
       }
     } catch (err: any) {
       setSubmitError(err.message || 'Failed to submit loan application.');
@@ -197,6 +265,25 @@ export default function LoanWizardPage() {
           </p>
         </div>
 
+        {profileLoading ? (
+          <div className="bg-white p-10 rounded-xl border border-slate-200/90 shadow-sm text-center text-sm text-slate-500">Loading your saved customer profile...</div>
+        ) : activeApplication ? (
+          <div className="bg-white p-10 rounded-xl border border-amber-200 shadow-sm text-center space-y-3">
+            <Clock className="w-10 h-10 text-amber-600 mx-auto" />
+            <h2 className="text-lg font-bold text-[#14243A]">An application is already in process</h2>
+            <p className="text-sm text-slate-600">You can’t start another loan application while application #{activeApplication._id.slice(-6).toUpperCase()} is {activeApplication.status.toLowerCase()}.</p>
+            <button type="button" onClick={() => router.replace('/borrower')} className="px-5 py-2.5 bg-[#0F766E] text-white text-xs font-semibold rounded-lg">View application status</button>
+          </div>
+        ) : submitSuccess ? (
+          <div className="bg-white p-10 rounded-xl border border-slate-200/90 shadow-sm text-center space-y-3">
+            <CheckCircle className="w-12 h-12 text-emerald-600 mx-auto" />
+            <h2 className="text-lg font-bold text-emerald-900">Submitted successfully</h2>
+            <p className="text-xs text-slate-500">
+              Your loan application has been received. Redirecting to your dashboard...
+            </p>
+          </div>
+        ) : (
+          <>
         {/* Step Indicator Header */}
         <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-sm">
           <div className="grid grid-cols-4 gap-2">
@@ -245,7 +332,9 @@ export default function LoanWizardPage() {
                 <span>Step 1: Personal & Employment Details</span>
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Enter your identity, PAN credentials, and income mode for eligibility evaluation.
+                {brePassed
+                  ? 'Your verified customer details are saved and locked for this application.'
+                  : 'Enter your identity, PAN credentials, and income mode for eligibility evaluation.'}
               </p>
             </div>
 
@@ -256,6 +345,7 @@ export default function LoanWizardPage() {
                   type="text"
                   required
                   value={fullName}
+                  disabled={brePassed}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Full name as printed on PAN card"
                   className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0F766E]/40 text-slate-800"
@@ -269,6 +359,7 @@ export default function LoanWizardPage() {
                   required
                   maxLength={10}
                   value={pan}
+                  disabled={brePassed}
                   onChange={(e) => setPan(e.target.value.toUpperCase())}
                   placeholder="e.g. ABCDE1234F"
                   className="w-full px-3.5 py-2 text-xs uppercase font-mono rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0F766E]/40 text-slate-800"
@@ -282,6 +373,7 @@ export default function LoanWizardPage() {
                   type="date"
                   required
                   value={dateOfBirth}
+                  disabled={brePassed}
                   onChange={(e) => setDateOfBirth(e.target.value)}
                   className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0F766E]/40 text-slate-800"
                 />
@@ -295,6 +387,7 @@ export default function LoanWizardPage() {
                   required
                   min={0}
                   value={monthlySalary}
+                  disabled={brePassed}
                   onChange={(e) => setMonthlySalary(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="e.g. 60000"
                   className="w-full px-3.5 py-2 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0F766E]/40 text-slate-800"
@@ -306,6 +399,7 @@ export default function LoanWizardPage() {
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Employment Status</label>
                 <select
                   value={employmentMode}
+                  disabled={brePassed}
                   onChange={(e) =>
                     setEmploymentMode(e.target.value as 'Salaried' | 'Self-Employed' | 'Unemployed')
                   }
@@ -323,7 +417,7 @@ export default function LoanWizardPage() {
                   type="submit"
                   className="px-5 py-2.5 bg-[#0F766E] hover:bg-[#0D655E] text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5"
                 >
-                  <span>Proceed to Eligibility Check</span>
+                  <span>{brePassed ? 'Continue to Documents' : 'Proceed to Eligibility Check'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -347,22 +441,19 @@ export default function LoanWizardPage() {
             {breEvaluating ? (
               <div className="py-12 text-center space-y-3">
                 <RefreshCw className="w-8 h-8 text-[#0F766E] animate-spin mx-auto" />
-                <h3 className="text-sm font-bold text-[#14243A]">Running Real-Time Credit Evaluation</h3>
-                <p className="text-xs text-slate-500">Checking age limits, monthly income threshold, PAN formatting, and employment mode...</p>
+                <h3 className="text-sm font-bold text-[#14243A]">Checking your eligibility</h3>
+                <p className="text-xs text-slate-500">Please wait while we verify your application.</p>
               </div>
             ) : brePassed ? (
               <div className="space-y-4">
                 <div className="p-5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 space-y-2">
                   <div className="flex items-center gap-2 font-bold text-sm text-emerald-900">
                     <CheckCircle className="w-5 h-5 text-emerald-600" />
-                    <span>Eligibility Approved — All 4 Business Rules Passed</span>
+                    <span>You are eligible</span>
                   </div>
-                  <ul className="text-xs text-emerald-700 space-y-1 list-disc pl-5">
-                    <li>Age requirement confirmed (between 23 and 50 years).</li>
-                    <li>Salary threshold satisfied (₹{Number(monthlySalary).toLocaleString('en-IN')} $\ge$ ₹25,000).</li>
-                    <li>PAN format valid and verified.</li>
-                    <li>Active employment status verified ({employmentMode}).</li>
-                  </ul>
+                  <p className="text-xs text-emerald-700">
+                    You meet the requirements for this loan. Continue to upload your documents.
+                  </p>
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
@@ -641,6 +732,8 @@ export default function LoanWizardPage() {
               </button>
             </div>
           </div>
+        )}
+          </>
         )}
       </div>
     </AppLayout>

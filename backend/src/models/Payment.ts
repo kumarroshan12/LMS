@@ -2,7 +2,6 @@ import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export interface IPayment extends Document {
   loanId: Types.ObjectId;
-  borrowerId: Types.ObjectId;
   utrNumber: string;
   amount: number;
   paymentDate: Date;
@@ -16,12 +15,6 @@ const PaymentSchema = new Schema<IPayment>(
     loanId: {
       type: Schema.Types.ObjectId,
       ref: 'Loan',
-      required: true,
-      index: true,
-    },
-    borrowerId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
       required: true,
       index: true,
     },

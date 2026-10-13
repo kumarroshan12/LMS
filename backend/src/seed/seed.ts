@@ -14,13 +14,17 @@ dotenv.config();
 export const seedDatabase = async () => {
   try {
     console.log('[Seed] Connecting to MongoDB...');
-    await mongoose.connect(ENV.MONGO_URI);
+    // Let the seed clear legacy fixtures before creating newly-added unique indexes.
+    await mongoose.connect(ENV.MONGO_URI, { autoIndex: false });
     console.log('[Seed] Connected.');
 
     // Clear existing data for clean seed
     await UserModel.deleteMany({});
     await LoanModel.deleteMany({});
     await PaymentModel.deleteMany({});
+    // Rebuild the partial unique index after the old sample loans are removed,
+    // before inserting the fixtures below.
+    await LoanModel.syncIndexes();
     console.log('[Seed] Cleaned existing collections.');
 
     const defaultPassword = 'Password@123';
@@ -70,6 +74,14 @@ export const seedDatabase = async () => {
         passwordHash,
         role: UserRole.BORROWER,
         phone: '+91 9876543215',
+        customerProfile: {
+          fullName: 'Rahul Sharma',
+          pan: 'ABCRS1234D',
+          dateOfBirth: new Date('1996-07-12'),
+          monthlySalary: 50000,
+          employmentMode: 'Salaried',
+          eligibility: { isEligible: true, checkedAt: new Date() },
+        },
       },
       {
         fullName: 'Priya Verma (Active Borrower)',
@@ -77,6 +89,20 @@ export const seedDatabase = async () => {
         passwordHash,
         role: UserRole.BORROWER,
         phone: '+91 9876543216',
+      },
+      {
+        fullName: 'Vikram Mehta (Sanction Demo Borrower)',
+        email: 'vikram.borrower@lms.com',
+        passwordHash,
+        role: UserRole.BORROWER,
+        phone: '+91 9876543217',
+      },
+      {
+        fullName: 'Ananya Roy (Collection Demo Borrower)',
+        email: 'ananya.borrower@lms.com',
+        passwordHash,
+        role: UserRole.BORROWER,
+        phone: '+91 9876543218',
       },
     ];
 
@@ -88,6 +114,8 @@ export const seedDatabase = async () => {
     const disbUser = seededUsers.find((u) => u.role === UserRole.DISBURSEMENT)!;
     const collectUser = seededUsers.find((u) => u.role === UserRole.COLLECTION)!;
     const borrower = seededUsers.find((u) => u.email === 'borrower@lms.com')!;
+    const sanctionedBorrower = seededUsers.find((u) => u.email === 'vikram.borrower@lms.com')!;
+    const disbursedBorrower = seededUsers.find((u) => u.email === 'ananya.borrower@lms.com')!;
 
     // 2. Seed Sample Loan 1: APPLIED (For Sanction Officer to review/approve/reject)
     const terms1 = calculateLoanTerms(150000, 180, 12);
@@ -113,7 +141,7 @@ export const seedDatabase = async () => {
     // 3. Seed Sample Loan 2: SANCTIONED (For Disbursement Officer to release funds)
     const terms2 = calculateLoanTerms(250000, 90, 12);
     await LoanModel.create({
-      borrowerId: borrower._id,
+      borrowerId: sanctionedBorrower._id,
       fullName: 'Vikram Mehta',
       pan: 'BKMPL9876A',
       dateOfBirth: new Date('1988-11-20'),
@@ -136,7 +164,7 @@ export const seedDatabase = async () => {
     // 4. Seed Sample Loan 3: DISBURSED (For Collection Officer to record payments)
     const terms3 = calculateLoanTerms(100000, 60, 12);
     const disbursedLoan = await LoanModel.create({
-      borrowerId: borrower._id,
+      borrowerId: disbursedBorrower._id,
       fullName: 'Ananya Roy',
       pan: 'CRUPR5544K',
       dateOfBirth: new Date('1992-03-10'),
@@ -162,7 +190,6 @@ export const seedDatabase = async () => {
     // Seed 1 payment for the disbursed loan
     await PaymentModel.create({
       loanId: disbursedLoan._id,
-      borrowerId: borrower._id,
       utrNumber: 'CMS982347101298',
       amount: 20000,
       paymentDate: new Date(Date.now() - 3600000 * 12),
@@ -178,6 +205,8 @@ export const seedDatabase = async () => {
     console.log('4. Disbursement:  disbursement@lms.com');
     console.log('5. Collection:    collection@lms.com');
     console.log('6. Borrower:      borrower@lms.com (also rahul.lead@lms.com for Sales lead)');
+    console.log('7. Sanction demo borrower: vikram.borrower@lms.com');
+    console.log('8. Collection demo borrower: ananya.borrower@lms.com');
     console.log('==================================================================\n');
 
     process.exit(0);

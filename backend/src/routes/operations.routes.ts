@@ -15,6 +15,7 @@ router.get('/sales/leads', authorizeRoles(UserRole.SALES, UserRole.ADMIN), ops.g
 
 // 2. Sanction Module routes
 router.get('/sanction/queue', authorizeRoles(UserRole.SANCTION, UserRole.ADMIN), ops.getSanctionQueue);
+router.get('/loans/:id/salary-slip', authorizeRoles(UserRole.SANCTION, UserRole.ADMIN), ops.getSalarySlip);
 router.post(
   '/sanction/:id/approve',
   authorizeRoles(UserRole.SANCTION, UserRole.ADMIN),
@@ -51,7 +52,7 @@ router.post(
 );
 router.get(
   '/collection/:id/payments',
-  authorizeRoles(UserRole.COLLECTION, UserRole.SANCTION, UserRole.ADMIN),
+  authorizeRoles(UserRole.COLLECTION, UserRole.ADMIN),
   ops.getLoanPayments
 );
 

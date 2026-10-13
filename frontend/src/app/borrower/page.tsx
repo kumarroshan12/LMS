@@ -57,6 +57,9 @@ export default function BorrowerDashboardPage() {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [allLoans, setAllLoans] = useState<LoanRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasActiveApplication = allLoans.some((loan) =>
+    ['APPLIED', 'SANCTIONED', 'DISBURSED'].includes(loan.status)
+  );
 
   useEffect(() => {
     loadDashboardData();
@@ -110,13 +113,13 @@ export default function BorrowerDashboardPage() {
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
             </button>
-            <Link
+            {!hasActiveApplication && <Link
               href="/borrower/apply"
               className="px-4 py-2 text-xs font-semibold text-white bg-[#0F766E] hover:bg-[#0D655E] rounded-lg shadow-sm transition flex items-center gap-1.5"
             >
               <FilePlus className="w-3.5 h-3.5" />
               <span>Apply for New Loan</span>
-            </Link>
+            </Link>}
           </div>
         </div>
 
@@ -259,13 +262,13 @@ export default function BorrowerDashboardPage() {
                 You currently do not have any pending or active loans. Check your eligibility and apply in 4 quick steps.
               </p>
             </div>
-            <Link
+            {!hasActiveApplication && <Link
               href="/borrower/apply"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F766E] hover:bg-[#0D655E] text-white text-xs font-semibold rounded-lg shadow-sm transition"
             >
               <span>Start Loan Application</span>
               <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            </Link>}
           </div>
         )}
       </div>

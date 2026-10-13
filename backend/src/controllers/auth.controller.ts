@@ -13,7 +13,7 @@ export class AuthController {
 
   public register = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { fullName, email, password, role, phone } = req.body;
+      const { fullName, email, password, phone } = req.body;
 
       if (!fullName || !email || !password) {
         ApiResponse.error(res, 'Full Name, email, and password are required.', 400);
@@ -25,13 +25,11 @@ export class AuthController {
         return;
       }
 
-      const assignedRole = role && Object.values(UserRole).includes(role) ? role : UserRole.BORROWER;
-
       const result = await this.authService.register(
         fullName,
         email,
         password,
-        assignedRole,
+        UserRole.BORROWER,
         phone
       );
 

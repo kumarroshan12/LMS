@@ -10,6 +10,14 @@ export class UserRepository {
     return UserModel.findById(id);
   }
 
+  async updateCustomerProfile(userId: string, profile: NonNullable<IUser['customerProfile']>): Promise<IUser | null> {
+    return UserModel.findByIdAndUpdate(
+      userId,
+      { $set: { customerProfile: profile } },
+      { new: true, runValidators: true }
+    );
+  }
+
   async create(userData: Partial<IUser>): Promise<IUser> {
     return UserModel.create(userData);
   }
@@ -18,26 +26,36 @@ export class UserRepository {
     return UserModel.find({ role }).sort({ createdAt: -1 });
   }
 
-  // Find borrowers who have not applied for any loan (leads for Sales module)
+  // Sales works only eligible borrowers who have not submitted an application.
   async findLeads(): Promise<IUser[]> {
     return UserModel.aggregate([
-      { $match: { role: UserRole.BORROWER } },
+      {
+        $match: {
+          role: UserRole.BORROWER,
+          'customerProfile.eligibility.isEligible': true,
+        },
+      },
       {
         $lookup: {
           from: 'loans',
-          localField: '_id',
-          foreignField: 'borrowerId',
-          as: 'loans',
-        },
-      },
-      {
-        $match: {
-          $or: [
-            { loans: { $size: 0 } },
-            { 'loans.status': 'DRAFT' },
+          let: { borrowerId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$borrowerId', '$$borrowerId'] },
+                    { $ne: ['$status', 'DRAFT'] },
+                  ],
+                },
+              },
+            },
+            { $limit: 1 },
           ],
+          as: 'submittedApplications',
         },
       },
+      { $match: { submittedApplications: { $size: 0 } } },
       { $sort: { createdAt: -1 } },
     ]);
   }

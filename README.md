@@ -110,6 +110,8 @@ All accounts use password: `Password@123`
 * Disbursement Officer: `disbursement@lms.com`
 * Collection Officer: `collection@lms.com`
 * Borrower Account: `borrower@lms.com`
+* Sanction demo borrower: `vikram.borrower@lms.com`
+* Collection demo borrower: `ananya.borrower@lms.com`
 
 ### 3. Start Backend & Frontend
 

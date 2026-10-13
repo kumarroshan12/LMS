@@ -2,8 +2,9 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { Request } from 'express';
+import { ENV } from '../config/env';
 
-const uploadDirectory = path.join(process.cwd(), 'uploads');
+const uploadDirectory = path.resolve(process.cwd(), ENV.UPLOAD_DIR);
 if (!fs.existsSync(uploadDirectory)) {
   fs.mkdirSync(uploadDirectory, { recursive: true });
 }
@@ -15,7 +16,8 @@ const storage = multer.diskStorage({
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `salary-slip-${uniqueSuffix}${ext}`);
+    const borrowerId = (_req as Request & { user?: { id: string } }).user?.id || 'unassociated';
+    cb(null, `salary-slip-${borrowerId}-${uniqueSuffix}${ext}`);
   },
 });
 
@@ -28,10 +30,17 @@ const fileFilter = (
   const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];
   const ext = path.extname(file.originalname).toLowerCase();
 
-  if (allowedMimeTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
+  const matchingMime =
+    (ext === '.pdf' && file.mimetype === 'application/pdf') ||
+    ((ext === '.jpg' || ext === '.jpeg') && file.mimetype === 'image/jpeg') ||
+    (ext === '.png' && file.mimetype === 'image/png');
+
+  if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(file.mimetype) && matchingMime) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file format. Only PDF, JPG, and PNG files are allowed.'));
+    const error = new Error('Invalid file format. Only matching PDF, JPG, and PNG files are allowed.') as Error & { statusCode: number };
+    error.statusCode = 400;
+    cb(error);
   }
 };
 

@@ -25,6 +25,23 @@ export const removeAuthToken = (): void => {
   }
 };
 
+export async function openProtectedFile(endpoint: string): Promise<void> {
+  const fileWindow = window.open('about:blank', '_blank');
+  const token = getAuthToken();
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!response.ok) throw new Error('Unable to access this document.');
+    const fileUrl = URL.createObjectURL(await response.blob());
+    if (fileWindow) fileWindow.location.href = fileUrl;
+    window.setTimeout(() => URL.revokeObjectURL(fileUrl), 60_000);
+  } catch (error) {
+    fileWindow?.close();
+    throw error;
+  }
+}
+
 export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit = {}

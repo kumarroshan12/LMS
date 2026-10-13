@@ -1,9 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import path from 'path';
 import apiRoutes from './routes';
 import { errorHandler } from './middlewares/error.middleware';
-import { ENV } from './config/env';
 
 export const createApp = (): Application => {
   const app = express();
@@ -19,9 +17,6 @@ export const createApp = (): Application => {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-
-  // Serve static uploads
-  app.use('/uploads', express.static(path.join(process.cwd(), ENV.UPLOAD_DIR)));
 
   // Health check endpoint
   app.get('/api/health', (_req: Request, res: Response) => {
