@@ -98,17 +98,20 @@ export const Sidebar: React.FC = () => {
               Operations Modules
             </span>
 
-            <Link
-              href="/dashboard"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
-                pathname === '/dashboard'
-                  ? 'bg-[#0F766E] text-white shadow-sm'
-                  : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
-              }`}
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Operations Overview</span>
-            </Link>
+            {/* Admin Overview — only admin sees this */}
+            {isAdmin && (
+              <Link
+                href="/dashboard"
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
+                  pathname === '/dashboard'
+                    ? 'bg-[#0F766E] text-white shadow-sm'
+                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                }`}
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Admin Overview</span>
+              </Link>
+            )}
 
             {(isAdmin || user.role === 'sales') && (
               <Link

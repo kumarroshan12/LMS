@@ -22,12 +22,16 @@ export default function LoginPage() {
 
     try {
       const u = await login(email, password);
-      // Automatic role-based routing:
-      if (u.role === 'borrower') {
-        router.push('/borrower');
-      } else {
-        router.push('/dashboard');
-      }
+      // Automatic role-based routing — each role lands on their own workspace:
+      const roleRoutes: Record<string, string> = {
+        borrower: '/borrower',
+        admin: '/dashboard',
+        sales: '/dashboard/sales',
+        sanction: '/dashboard/sanction',
+        disbursement: '/dashboard/disbursement',
+        collection: '/dashboard/collection',
+      };
+      router.push(roleRoutes[u.role] ?? '/dashboard');
     } catch (err: any) {
       setErrorMsg(err.message || 'Authentication failed. Please verify your email and password.');
     } finally {
