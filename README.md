@@ -97,9 +97,7 @@ All seeded accounts use the password `Password@123`:
 | Disbursement officer | `disbursement@lms.com` |
 | Collection officer | `collection@lms.com` |
 | Borrower lead | `rahul.lead@lms.com` |
-| Active borrower | `borrower@lms.com` |
-| Sanction demo borrower | `vikram.borrower@lms.com` |
-| Collection demo borrower | `ananya.borrower@lms.com` |
+| Active borrower | `utkarsh@gmail.com` ||’borrower@lms.com’|
 
 ### 5. Start the application
 
